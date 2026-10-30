@@ -15,7 +15,7 @@ The system predicts machine failure risk from sensor readings so that maintenanc
 
 AI4I 2020 Predictive Maintenance Dataset (Matzka, 2020) – 10,000 synthetic records of a milling process.
 Source: [UCI Machine Learning Repository](https://doi.org/10.24432/C5HS5C) · [Kaggle](https://www.kaggle.com/datasets/stephanmatzka/predictive-maintenance-dataset-ai4i-2020).
-The raw data is not committed to Git; see `data/README.md`.
+A copy of the dataset is committed at data/ai4i2020.csv so the GitHub Actions pipeline can run.
 
 ## Repository structure
 
