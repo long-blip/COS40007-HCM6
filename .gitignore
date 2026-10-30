@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data: raw CSVs are not committed, except the AI4I dataset needed by the CI pipeline
+# (moves to DVC in Sprint 3)
+*.csv
+!data/ai4i2020.csv
+
+# Pipeline outputs (produced by model.py and uploaded as GitHub Actions artefacts)
+model_results.png
+metrics.txt
+
+# Models
+/models/*.pkl
+/models/*.joblib
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
