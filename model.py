@@ -53,7 +53,7 @@ metrics = {
     "precision": precision_score(y_test, y_pred, zero_division=0),
     "recall": recall_score(y_test, y_pred),
     "f1": f1_score(y_test, y_pred),
-    "pr_auc": average_precision_score(y_test, y_prob),
+    "average_precision": average_precision_score(y_test, y_prob),
 }
 
 with open("metrics.txt", "w") as f:
