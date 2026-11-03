@@ -25,3 +25,8 @@ metrics.txt
 .DS_Store
 Thumbs.db
 .vscode/
+
+   data/processed/
+   models/
+   metrics/
+   plots/
