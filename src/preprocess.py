@@ -17,6 +17,15 @@ TEST_SIZE = params["test_size"]
 df = pd.read_csv(DATA_PATH)
 print(f"Loaded {len(df)} rows from {DATA_PATH}")
 
+# Rename raw columns to snake_case (XGBoost does not allow [, ] or < in feature names)
+df = df.rename(columns={
+    "Air temperature [K]": "air_temp_k",
+    "Process temperature [K]": "process_temp_k",
+    "Rotational speed [rpm]": "rot_speed_rpm",
+    "Torque [Nm]": "torque_nm",
+    "Tool wear [min]": "tool_wear_min"
+})
+
 #Create the directory before writing: os.makedirs("data/processed", exist_ok=True).
 os.makedirs("data/processed", exist_ok=True)
 
@@ -26,9 +35,9 @@ y = df["Machine failure"]
 X = pd.get_dummies(X, columns=["Type"], dtype=int)
 
 # 3. Feature engineering (physics-based features from the EDA)
-X["temp_diff"] = X["Process temperature [K]"] - X["Air temperature [K]"]
-X["power"] = X["Torque [Nm]"] * X["Rotational speed [rpm]"] * 2 * np.pi / 60
-X["strain"] = X["Tool wear [min]"] * X["Torque [Nm]"]
+X["temp_diff"] = X["process_temp_k"] - X["air_temp_k"]
+X["power"] = X["torque_nm"] * X["rot_speed_rpm"] * 2 * np.pi / 60
+X["strain"] = X["tool_wear_min"] * X["torque_nm"]
 
 # 4. Stratified train/test split (keeps the 3.39% failure rate in both sets)
 X_train, X_test, y_train, y_test = train_test_split(
