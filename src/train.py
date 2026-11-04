@@ -11,6 +11,8 @@ with open("params.yaml", "r") as f:
 
 SEED = params["seed"]
 N_ESTIMATORS = params["n_estimators"]
+MAX_DEPTH = params["max_depth"]
+MIN_SAMPLES_LEAF = params["min_samples_leaf"]
 
 # Read the training data
 train_df = pd.read_csv("data/processed/train.csv")
@@ -22,10 +24,15 @@ X = train_df.drop(columns=["Machine failure"])
 # Train the model
 model = RandomForestClassifier(
     n_estimators=N_ESTIMATORS,
+    max_depth=MAX_DEPTH,
+    min_samples_leaf=MIN_SAMPLES_LEAF,
     class_weight="balanced",
     random_state=SEED,
-    n_jobs=-1
+    n_jobs=-1,
 )
+
+print(f"Training RandomForest with n_estimators={N_ESTIMATORS}, max_depth={MAX_DEPTH}, min_samples_leaf={MIN_SAMPLES_LEAF}")
+
 model.fit(X, y)
 
 # Create models directory if it doesn't exist
