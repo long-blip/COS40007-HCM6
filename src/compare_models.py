@@ -13,7 +13,7 @@ from sklearn.metrics import (accuracy_score, average_precision_score, f1_score,
 from xgboost import XGBClassifier
 
 TARGET = "Machine failure"
-METRICS = ["accuracy", "precision", "recall", "f1", "pr_auc"]
+METRICS = ["accuracy", "precision", "recall", "f1", "average_precision"]
 
 # 1. Parameters and data
 with open("params.yaml", "r") as f:
@@ -58,7 +58,7 @@ for name, (model, grid) in candidates.items():
         "precision": precision_score(y_test, y_pred, zero_division=0),
         "recall": recall_score(y_test, y_pred),
         "f1": f1_score(y_test, y_pred),
-        "pr_auc": average_precision_score(y_test, y_prob),
+        "average_precision": average_precision_score(y_test, y_prob),
         "cv_f1": search.best_score_,
         "best_params": search.best_params_,
     }
@@ -82,7 +82,9 @@ ax.set_title("Random Forest vs XGBoost on the test set (tuned with 5-fold GridSe
 ax.set_xlabel("Metric")
 ax.set_ylabel("Score")
 ax.set_ylim(0.7, 1.05)
-ax.set_xticklabels([m.upper() if m != "pr_auc" else "PR-AUC" for m in METRICS], rotation=0)
+labels = {"accuracy": "Accuracy", "precision": "Precision", "recall": "Recall",
+          "f1": "F1", "average_precision": "Avg Precision"}
+ax.set_xticklabels([labels[m] for m in METRICS], rotation=0)
 ax.legend(title="Model", loc="upper right", ncol=2)
 plt.tight_layout()
 os.makedirs("plots", exist_ok=True)
