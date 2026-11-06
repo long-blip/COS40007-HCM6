@@ -24,6 +24,8 @@ train_df = pd.read_csv("data/processed/train.csv")
 test_df = pd.read_csv("data/processed/test.csv")
 X_train, y_train = train_df.drop(columns=[TARGET]), train_df[TARGET]
 X_test, y_test = test_df.drop(columns=[TARGET]), test_df[TARGET]
+X_train.columns = X_train.columns.str.replace(r"[\[\]<]", "", regex=True)
+X_test.columns = X_test.columns.str.replace(r"[\[\]<]", "", regex=True)
 
 # 2. Models and hyperparameter grids
 # XGBoost has no class_weight option; scale_pos_weight = negatives / positives
