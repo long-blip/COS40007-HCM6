@@ -13,10 +13,14 @@ test_df = pd.read_csv("data/processed/test.csv")
 
 y_test = test_df["Machine failure"]
 X_test = test_df.drop(columns=["Machine failure"])
-y_pred = model.predict(X_test)
+with open("metrics/threshold.json", "r") as f:
+    THRESHOLD = json.load(f)["threshold"]
+
 y_prob = model.predict_proba(X_test)[:, 1]
+y_pred = (y_prob >= THRESHOLD).astype(int)
 
 metrics = {
+    "threshold": THRESHOLD,
     "accuracy": accuracy_score(y_test, y_pred),
     "precision": precision_score(y_test, y_pred, zero_division=0),
     "recall": recall_score(y_test, y_pred),
