@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 5. Pull data from Dagshub
+      #5. Download data in GitHub Actions
       - name: Pull data from DagsHub
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
       # 6. Train the model - runs model.py
       - name: Train model
         run: python model.py
-      
+
       # 7. Upload the saved plot and metrics as artefacts
       - name: Upload results
         uses: actions/upload-artifact@v4
