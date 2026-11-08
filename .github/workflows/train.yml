@@ -44,16 +44,39 @@ jobs:
           dvc remote modify --local dagshub secret_access_key "$DAGSHUB_TOKEN"
           dvc pull -r dagshub
 
-      # 6. Train the model - runs model.py
-      - name: Train model
-        run: python model.py
+      # 6. Recreate the training and test datasets
+      - name: Preprocess data
+        run: python src/preprocess.py
 
-      # 7. Upload the saved plot and metrics as artefacts
+      # 7. Select the threshold using training data only
+      - name: Select threshold
+        run: python src/select_threshold.py
+
+      # 8. Train the final model
+      - name: Train Random Forest
+        run: python src/train.py
+
+      # 9. Evaluate on the test set
+      - name: Evaluate model
+        run: python src/evaluate.py
+
+      # 10. Check that all expected results exist
+      - name: Verify result files
+        run: |
+          test -f metrics/threshold.json
+          test -f metrics/metrics.json
+          test -f plots/threshold.png
+          test -f plots/model_results.png
+
+      # 11. Upload evaluation results
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: model-results
+          if-no-files-found: error
           path: |
-            model_results.png
-            metrics.txt
+            metrics/threshold.json
+            metrics/metrics.json
+            plots/threshold.png
+            plots/model_results.png
       
