@@ -35,11 +35,20 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 5. Train the model - runs model.py
+      # 5. Pull data from Dagshub
+      - name: Pull data from DagsHub
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          dvc remote modify --local dagshub access_key_id "$DAGSHUB_TOKEN"
+          dvc remote modify --local dagshub secret_access_key "$DAGSHUB_TOKEN"
+          dvc pull -r dagshub
+
+      # 6. Train the model - runs model.py
       - name: Train model
         run: python model.py
-
-      # 6. Upload the saved plot and metrics as artefacts
+      
+      # 7. Upload the saved plot and metrics as artefacts
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
@@ -47,3 +56,4 @@ jobs:
           path: |
             model_results.png
             metrics.txt
+      
