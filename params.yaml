@@ -4,3 +4,6 @@ n_estimators: 400
 max_depth: 20
 min_samples_leaf: 1
 min_recall: 0.80
+ks_alpha: 0.05
+psi_threshold: 0.1
+chi2_alpha: 0.05
