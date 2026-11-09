@@ -7,3 +7,4 @@ ipykernel
 pyyaml
 xgboost
 dvc[s3]==3.67.1
+scipy
