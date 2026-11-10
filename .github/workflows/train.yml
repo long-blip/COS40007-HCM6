@@ -33,50 +33,48 @@ jobs:
 
       # 4. Install dependencies from requirements.txt
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt
 
-      #5. Download data in GitHub Actions
+      # 5. Download the raw dataset from DagsHub
       - name: Pull data from DagsHub
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           dvc remote modify --local dagshub access_key_id "$DAGSHUB_TOKEN"
           dvc remote modify --local dagshub secret_access_key "$DAGSHUB_TOKEN"
-          dvc pull -r dagshub
+          dvc pull data/ai4i2020.csv -r dagshub
 
       # 6. Recreate the training and test datasets
-      - name: Preprocess data
-        run: python src/preprocess.py
-
-      # 7. Select the threshold using training data only
-      - name: Select threshold
-        run: python src/select_threshold.py
-
-      # 8. Train the final model
-      - name: Train Random Forest
-        run: python src/train.py
-
+      # 7. Train the final model
+      # 8. Select the threshold using training data only
       # 9. Evaluate on the test set
-      - name: Evaluate model
-        run: python src/evaluate.py
+      # DVC runs these stages in the dependency order defined in dvc.yaml
+      - name: Reproduce DVC pipeline
+        run: dvc repro
 
       # 10. Check that all expected results exist
       - name: Verify result files
         run: |
+          test -f dvc.lock
+          test -f models/model.pkl
           test -f metrics/threshold.json
           test -f metrics/metrics.json
           test -f plots/threshold.png
           test -f plots/model_results.png
 
-      # 11. Upload evaluation results
-      - name: Upload results
+      # 11. Upload the model, evaluation results and pipeline metadata
+      - name: Upload model and results
         uses: actions/upload-artifact@v4
         with:
           name: model-results
           if-no-files-found: error
           path: |
+            dvc.yaml
+            dvc.lock
+            params.yaml
+            requirements.txt
+            models/model.pkl
             metrics/threshold.json
             metrics/metrics.json
             plots/threshold.png
             plots/model_results.png
-      

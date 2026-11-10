@@ -6,7 +6,8 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier
+import joblib
+from sklearn.base import clone
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.metrics import precision_recall_curve
 
@@ -23,14 +24,8 @@ y = train_df["Machine failure"]
 X = train_df.drop(columns=["Machine failure"])
 
 # 3. Same model settings as train.py
-model = RandomForestClassifier(
-    n_estimators=params["n_estimators"],
-    max_depth=params["max_depth"],
-    min_samples_leaf=params["min_samples_leaf"],
-    class_weight="balanced",
-    random_state=SEED,
-    n_jobs=-1,
-)
+# Reuse the saved model's configuration without its fitted state.
+model = clone(joblib.load("models/model.pkl"))
 
 # 4. Out-of-fold probabilities: each row is predicted by a model that did not see it
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
