@@ -1,0 +1,57 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+      - src/preprocess.py
+      - data/ai4i2020.csv
+      - requirements.txt
+    params:
+      - seed
+      - test_size
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - src/train.py
+      - data/processed/train.csv
+      - requirements.txt
+    params:
+      - seed
+      - n_estimators
+      - max_depth
+      - min_samples_leaf
+    outs:
+      - models/model.pkl
+
+  select_threshold:
+    cmd: python src/select_threshold.py
+    deps:
+      - src/select_threshold.py
+      - data/processed/train.csv
+      - models/model.pkl
+      - requirements.txt
+    params:
+      - seed
+      - min_recall
+    metrics:
+      - metrics/threshold.json:
+          cache: true
+    outs:
+      - plots/threshold.png
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - src/evaluate.py
+      - data/processed/test.csv
+      - models/model.pkl
+      - metrics/threshold.json
+      - requirements.txt
+    metrics:
+      - metrics/metrics.json:
+          cache: true
+    outs:
+      - plots/model_results.png

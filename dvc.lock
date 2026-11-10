@@ -1,0 +1,120 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - path: data/ai4i2020.csv
+      hash: md5
+      md5: f0adaa9c5e25366c6df1cc2684479871
+      size: 522048
+    - path: requirements.txt
+      hash: md5
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
+    - path: src/preprocess.py
+      hash: md5
+      md5: 01d1d12bca0f580b447d0f81d22ed875
+      size: 2266
+    params:
+      params.yaml:
+        seed: 42
+        test_size: 0.2
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 9fc92328e0d2677bc566fd6a68c98c1b
+      size: 153822
+    - path: data/processed/train.csv
+      hash: md5
+      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
+      size: 615947
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
+      size: 615947
+    - path: requirements.txt
+      hash: md5
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
+    - path: src/train.py
+      hash: md5
+      md5: d5804d870b7996fe21b3ce8780e84ec8
+      size: 1069
+    params:
+      params.yaml:
+        max_depth: 20
+        min_samples_leaf: 1
+        n_estimators: 400
+        seed: 42
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 77722df58726add5028b604b45fa5ef7
+      size: 8668793
+  select_threshold:
+    cmd: python src/select_threshold.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
+      size: 615947
+    - path: models/model.pkl
+      hash: md5
+      md5: 77722df58726add5028b604b45fa5ef7
+      size: 8668793
+    - path: requirements.txt
+      hash: md5
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
+    - path: src/select_threshold.py
+      hash: md5
+      md5: cbb8ea8cb727e5af5b8eca0b587bc9c8
+      size: 2560
+    params:
+      params.yaml:
+        min_recall: 0.8
+        seed: 42
+    outs:
+    - path: metrics/threshold.json
+      hash: md5
+      md5: 67fd7ca9b41f814c2dd1b1d1c3b645f8
+      size: 111
+    - path: plots/threshold.png
+      hash: md5
+      md5: f66632eed344608ffc3a176ec0624b0a
+      size: 84537
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 9fc92328e0d2677bc566fd6a68c98c1b
+      size: 153822
+    - path: metrics/threshold.json
+      hash: md5
+      md5: 67fd7ca9b41f814c2dd1b1d1c3b645f8
+      size: 111
+    - path: models/model.pkl
+      hash: md5
+      md5: 77722df58726add5028b604b45fa5ef7
+      size: 8668793
+    - path: requirements.txt
+      hash: md5
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
+    - path: src/evaluate.py
+      hash: md5
+      md5: 3e4144dc22ec91422d2ea0eb19b5d1c4
+      size: 1724
+    outs:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: 9fe11bcddc695c0715c02efe2b473d21
+      size: 181
+    - path: plots/model_results.png
+      hash: md5
+      md5: 207bc21f8d1ec21db092a2e94891fe35
+      size: 58675
