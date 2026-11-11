@@ -3,6 +3,7 @@ stages:
     cmd: python src/preprocess.py
     deps:
       - src/preprocess.py
+      - src/features.py
       - data/ai4i2020.csv
       - requirements.txt
     params:

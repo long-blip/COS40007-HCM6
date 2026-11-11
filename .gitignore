@@ -18,6 +18,7 @@ data/processed/
 models/
 metrics/
 plots/
+logs/
 
 # OS / editor
 .DS_Store
