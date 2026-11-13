@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from features import build_features
 
-DATA_PATH = "data/ai4i2020.csv"
+DATA_PATH = "data/validated/ai4i2020.csv"
 
 # 1. Load data
 #read seed and test_size from params.yaml, no hard-coding

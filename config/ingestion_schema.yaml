@@ -1,0 +1,62 @@
+version: 1
+label_column: Machine failure
+allow_extra_columns: false
+
+columns:
+  UDI:
+    type: integer
+    required: true
+    minimum: 1
+    unique: true
+  Product ID:
+    type: string
+    required: true
+    pattern: '[HLM][0-9]+'
+  Type:
+    type: string
+    required: true
+    allowed: [H, L, M]
+  Air temperature [K]:
+    type: number
+    required: true
+    exclusive_minimum: 0
+  Process temperature [K]:
+    type: number
+    required: true
+    exclusive_minimum: 0
+  Rotational speed [rpm]:
+    type: integer
+    required: true
+    minimum: 0
+  Torque [Nm]:
+    type: number
+    required: true
+    minimum: 0
+  Tool wear [min]:
+    type: integer
+    required: true
+    minimum: 0
+  Machine failure:
+    type: integer
+    required: false
+    allowed: [0, 1]
+  TWF:
+    type: integer
+    required: false
+    allowed: [0, 1]
+  HDF:
+    type: integer
+    required: false
+    allowed: [0, 1]
+  PWF:
+    type: integer
+    required: false
+    allowed: [0, 1]
+  OSF:
+    type: integer
+    required: false
+    allowed: [0, 1]
+  RNF:
+    type: integer
+    required: false
+    allowed: [0, 1]

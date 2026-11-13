@@ -1,10 +1,27 @@
 stages:
+  ingest:
+    cmd: >-
+      python src/ingest_validate.py
+      --input data/ai4i2020.csv
+      --schema config/ingestion_schema.yaml
+      --output data/validated/ai4i2020.csv
+      --report metrics/ingestion_report.json
+      --require-labels
+    deps:
+      - src/ingest_validate.py
+      - config/ingestion_schema.yaml
+      - data/ai4i2020.csv
+      - requirements.txt
+    outs:
+      - data/validated/ai4i2020.csv
+      - metrics/ingestion_report.json
+
   preprocess:
     cmd: python src/preprocess.py
     deps:
       - src/preprocess.py
       - src/features.py
-      - data/ai4i2020.csv
+      - data/validated/ai4i2020.csv
       - requirements.txt
     params:
       - seed

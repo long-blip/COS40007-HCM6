@@ -3,22 +3,22 @@ stages:
   preprocess:
     cmd: python src/preprocess.py
     deps:
-    - path: data/ai4i2020.csv
+    - path: data/validated/ai4i2020.csv
       hash: md5
       md5: f0adaa9c5e25366c6df1cc2684479871
       size: 522048
     - path: requirements.txt
       hash: md5
-      md5: 7f013c856fbe68879352870a3244e3b2
-      size: 100
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
     - path: src/features.py
       hash: md5
-      md5: 0677965db4df4eeceffaf4ed8ed6afd3
-      size: 1005
+      md5: 1b92bfe58b33822b206910c07e916cd8
+      size: 978
     - path: src/preprocess.py
       hash: md5
-      md5: 888aaf7490e103a63c4038b776cf20e4
-      size: 1624
+      md5: f45bcc1d10867476966eb9dbd9b269fc
+      size: 1593
     params:
       params.yaml:
         seed: 42
@@ -26,27 +26,27 @@ stages:
     outs:
     - path: data/processed/test.csv
       hash: md5
-      md5: a24669ae8094946ee148ac7db93d89ed
-      size: 155823
+      md5: 9fc92328e0d2677bc566fd6a68c98c1b
+      size: 153822
     - path: data/processed/train.csv
       hash: md5
-      md5: 925e0130ebf15ba42bbd76ac0bae9d5e
-      size: 623948
+      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
+      size: 615947
   train:
     cmd: python src/train.py
     deps:
     - path: data/processed/train.csv
       hash: md5
-      md5: 925e0130ebf15ba42bbd76ac0bae9d5e
-      size: 623948
+      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
+      size: 615947
     - path: requirements.txt
       hash: md5
-      md5: 7f013c856fbe68879352870a3244e3b2
-      size: 100
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
     - path: src/train.py
       hash: md5
-      md5: 4a29dac1d7bddb09c3587d3ccc4c2e1f
-      size: 1111
+      md5: d5804d870b7996fe21b3ce8780e84ec8
+      size: 1069
     params:
       params.yaml:
         max_depth: 20
@@ -56,27 +56,27 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 708f81e0dd4ed84895f9a52a97ee0704
-      size: 8668761
+      md5: 77722df58726add5028b604b45fa5ef7
+      size: 8668793
   select_threshold:
     cmd: python src/select_threshold.py
     deps:
     - path: data/processed/train.csv
       hash: md5
-      md5: 925e0130ebf15ba42bbd76ac0bae9d5e
-      size: 623948
+      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
+      size: 615947
     - path: models/model.pkl
       hash: md5
-      md5: 708f81e0dd4ed84895f9a52a97ee0704
-      size: 8668761
+      md5: 77722df58726add5028b604b45fa5ef7
+      size: 8668793
     - path: requirements.txt
       hash: md5
-      md5: 7f013c856fbe68879352870a3244e3b2
-      size: 100
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
     - path: src/select_threshold.py
       hash: md5
-      md5: a6963edcfa0b6e016c7d365bc91b96c8
-      size: 2629
+      md5: cbb8ea8cb727e5af5b8eca0b587bc9c8
+      size: 2560
     params:
       params.yaml:
         min_recall: 0.8
@@ -84,41 +84,71 @@ stages:
     outs:
     - path: metrics/threshold.json
       hash: md5
-      md5: 6c3c04ee6625511241a8f5ba76551ea5
-      size: 117
+      md5: 67fd7ca9b41f814c2dd1b1d1c3b645f8
+      size: 111
     - path: plots/threshold.png
       hash: md5
-      md5: 86c16de8aa734d4f5a2df606b689923f
-      size: 84294
+      md5: f66632eed344608ffc3a176ec0624b0a
+      size: 84537
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/processed/test.csv
       hash: md5
-      md5: a24669ae8094946ee148ac7db93d89ed
-      size: 155823
+      md5: 9fc92328e0d2677bc566fd6a68c98c1b
+      size: 153822
     - path: metrics/threshold.json
       hash: md5
-      md5: 6c3c04ee6625511241a8f5ba76551ea5
-      size: 117
+      md5: 67fd7ca9b41f814c2dd1b1d1c3b645f8
+      size: 111
     - path: models/model.pkl
       hash: md5
-      md5: 708f81e0dd4ed84895f9a52a97ee0704
-      size: 8668761
+      md5: 77722df58726add5028b604b45fa5ef7
+      size: 8668793
     - path: requirements.txt
       hash: md5
-      md5: 7f013c856fbe68879352870a3244e3b2
-      size: 100
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
     - path: src/evaluate.py
       hash: md5
-      md5: ea6a6673b1b5f113cf2138d15090c1d9
-      size: 1772
+      md5: 3e4144dc22ec91422d2ea0eb19b5d1c4
+      size: 1724
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 3434ba2ffdc8b8c0912170f3374094be
-      size: 188
+      md5: 9fe11bcddc695c0715c02efe2b473d21
+      size: 181
     - path: plots/model_results.png
       hash: md5
-      md5: 6ef67c710ae142cc353a31e04a6d1495
-      size: 58464
+      md5: 207bc21f8d1ec21db092a2e94891fe35
+      size: 58675
+  ingest:
+    cmd: python src/ingest_validate.py --input data/ai4i2020.csv --schema 
+      config/ingestion_schema.yaml --output data/validated/ai4i2020.csv --report
+      metrics/ingestion_report.json --require-labels
+    deps:
+    - path: config/ingestion_schema.yaml
+      hash: md5
+      md5: d272a7bed9be7afe745e6c32881a2444
+      size: 1087
+    - path: data/ai4i2020.csv
+      hash: md5
+      md5: f0adaa9c5e25366c6df1cc2684479871
+      size: 522048
+    - path: requirements.txt
+      hash: md5
+      md5: 8354849d10baef8f7facd3edb00f61c5
+      size: 91
+    - path: src/ingest_validate.py
+      hash: md5
+      md5: 59c7b839ef6a36c71706b7dcfa74cf4b
+      size: 10632
+    outs:
+    - path: data/validated/ai4i2020.csv
+      hash: md5
+      md5: f0adaa9c5e25366c6df1cc2684479871
+      size: 522048
+    - path: metrics/ingestion_report.json
+      hash: md5
+      md5: 1b3490ecd3dfb665c5a402bfa1f4c20d
+      size: 645
