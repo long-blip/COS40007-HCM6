@@ -53,25 +53,35 @@ jobs:
           dvc remote modify --local dagshub secret_access_key "$DAGSHUB_TOKEN"
           dvc pull data/ai4i2020.csv -r dagshub
 
-      # 6. Recreate the training and test datasets
-      # 7. Train the final model
-      # 8. Select the threshold using training data only
-      # 9. Evaluate on the test set
+      # 6. Download the current champion for comparison
+      - name: Pull champion from DagsHub
+        run: dvc pull models/champion.dvc -r dagshub
+
+      # 7. Recreate the training and test datasets
+      # 8. Train the final model
+      # 9. Select the threshold using training data only
+      # 10. Evaluate on the test set
       # DVC runs these stages in the dependency order defined in dvc.yaml
       - name: Reproduce DVC pipeline
         run: dvc repro
 
-      # 10. Check that all expected results exist
+      # 11. Compare the candidate with the current champion
+      - name: Check model promotion
+        run: python src/promote_model.py
+
+      # 12. Check that all expected results exist
       - name: Verify result files
         run: |
           test -f dvc.lock
           test -f models/model.pkl
+          test -f models/champion.dvc
           test -f metrics/threshold.json
           test -f metrics/metrics.json
+          test -f metrics/promotion.json
           test -f plots/threshold.png
           test -f plots/model_results.png
 
-      # 11. Upload the model, evaluation results and pipeline metadata
+      # 13. Upload the model, evaluation results and pipeline metadata
       - name: Upload model and results
         uses: actions/upload-artifact@v4
         with:
@@ -83,7 +93,9 @@ jobs:
             params.yaml
             requirements.txt
             models/model.pkl
+            models/champion.dvc
             metrics/threshold.json
             metrics/metrics.json
+            metrics/promotion.json
             plots/threshold.png
             plots/model_results.png
