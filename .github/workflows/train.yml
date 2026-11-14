@@ -1,20 +1,39 @@
 name: Train ML Model
 
 on:
+  # Run when code or DVC data pointers are pushed to main
   push:
     branches: [ main ]
+
+  # Run checks for pull requests targeting main
   pull_request:
     branches: [ main ]
+
+  # Run daily at 07:17 Vietnam time (00:17 UTC)
+  schedule:
+    - cron: '17 0 * * *'
+
+  # Allow manual runs from the Actions tab
   workflow_dispatch:
+
+# Avoid overlapping champion updates on the same branch
+concurrency:
+  group: model-pipeline-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   train:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
-      # 1. Check out the repository code
+      # 1. Check out the repository code and model tags
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 2. Set up Python
       - name: Set up Python
@@ -44,25 +63,141 @@ jobs:
           dvc remote modify --local dagshub secret_access_key "$DAGSHUB_TOKEN"
           dvc pull data/ai4i2020.csv -r dagshub
 
-      # 6. Recreate the training and test datasets
-      # 7. Train the final model
-      # 8. Select the threshold using training data only
-      # 9. Evaluate on the test set
-      # DVC runs these stages in the dependency order defined in dvc.yaml
+      # 6. Download the champion from the latest model version
+      - name: Pull champion from DagsHub
+        id: champion
+        run: |
+          git fetch origin --tags
+
+          LATEST_TAG=$(git tag \
+            --list 'model-v[0-9]*.[0-9]*' \
+            --sort=-version:refname | sed -n '1p')
+
+          if [ -n "$LATEST_TAG" ]; then
+            echo "Loading champion from $LATEST_TAG"
+            git show "${LATEST_TAG}:models/champion.dvc" \
+              > models/champion.dvc
+          else
+            echo "Loading the initial champion from the repository"
+          fi
+
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          dvc pull models/champion.dvc -r dagshub
+
+      # 7. Recreate the training and test datasets
+      # 8. Train the final model
+      # 9. Select the threshold using training data only
+      # 10. Evaluate on the test set
+      # DVC runs these stages in dependency order
       - name: Reproduce DVC pipeline
         run: dvc repro
 
-      # 10. Check that all expected results exist
+      # 11. Compare the candidate with the current champion
+      - name: Check model promotion
+        id: promotion
+        env:
+          CHAMPION_TAG: ${{ steps.champion.outputs.tag }}
+        run: |
+          python src/promote_model.py
+
+          python - <<'PY'
+          import json
+          import os
+
+          with open("metrics/promotion.json") as f:
+              report = json.load(f)
+
+          action = "none"
+
+          if report["promotion_approved"]:
+              action = "promote"
+          elif not os.environ["CHAMPION_TAG"]:
+              # Register the existing baseline once, without replacing it.
+              champion = report["champion"]
+              if (
+                  champion is not None
+                  and champion["recall"] >= report["rules"]["min_recall"]
+              ):
+                  action = "baseline"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"action={action}\n")
+
+          print(f"Version action: {action}")
+          PY
+
+      # 12. Check that all expected results exist
       - name: Verify result files
         run: |
           test -f dvc.lock
           test -f models/model.pkl
+          test -f models/champion.dvc
+          test -f models/champion/model.pkl
+          test -f models/champion/threshold.json
           test -f metrics/threshold.json
           test -f metrics/metrics.json
+          test -f metrics/promotion.json
           test -f plots/threshold.png
           test -f plots/model_results.png
 
-      # 11. Upload the model, evaluation results and pipeline metadata
+      # 13. Publish model versions only from main
+      - name: Publish champion version
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          github.event_name != 'pull_request' &&
+          steps.promotion.outputs.action != 'none'
+        env:
+          VERSION: model-v${{ github.run_number }}.${{ github.run_attempt }}
+          VERSION_ACTION: ${{ steps.promotion.outputs.action }}
+          PREVIOUS_TAG: ${{ steps.champion.outputs.tag }}
+        run: |
+          # Do not publish a run based on an older main commit.
+          git fetch origin main
+          CURRENT_MAIN=$(git rev-parse refs/remotes/origin/main)
+
+          if [ "$CURRENT_MAIN" != "$GITHUB_SHA" ]; then
+            echo "Main has changed. Skipping publication from this run."
+            exit 0
+          fi
+
+          # Keep version numbers moving forwards.
+          if [ -n "$PREVIOUS_TAG" ]; then
+            NEWEST=$(printf '%s\n' "$PREVIOUS_TAG" "$VERSION" \
+              | sort -V | tail -n 1)
+
+            if [ "$NEWEST" != "$VERSION" ]; then
+              echo "A newer model version already exists. Skipping."
+              exit 0
+            fi
+          fi
+
+          # Never overwrite an existing version tag.
+          if git show-ref --verify --quiet "refs/tags/$VERSION"; then
+            echo "Version $VERSION already exists."
+            exit 1
+          fi
+
+          if [ "$VERSION_ACTION" = "promote" ]; then
+            python src/apply_promotion.py --version "$VERSION"
+            MESSAGE="Promote champion as $VERSION"
+          else
+            MESSAGE="Register initial champion as $VERSION"
+          fi
+
+          # Upload artifacts before publishing their Git metadata.
+          dvc add models/champion
+          dvc push -r dagshub
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Store the snapshot on an immutable tag without updating main.
+          git add models/champion.dvc dvc.lock
+          git commit --allow-empty -m "$MESSAGE"
+          git tag -a "$VERSION" -m "$MESSAGE"
+          git push origin "refs/tags/$VERSION"
+
+      # 14. Upload the model, evaluation results and pipeline metadata
       - name: Upload model and results
         uses: actions/upload-artifact@v4
         with:
@@ -74,7 +209,10 @@ jobs:
             params.yaml
             requirements.txt
             models/model.pkl
+            models/champion.dvc
+            models/champion/version.json
             metrics/threshold.json
             metrics/metrics.json
+            metrics/promotion.json
             plots/threshold.png
             plots/model_results.png

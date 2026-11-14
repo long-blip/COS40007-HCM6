@@ -15,7 +15,11 @@ env/
 model_results.png
 metrics.txt
 data/processed/
-models/
+# Ignore model files but allow DVC metadata
+/models/*
+!/models/*.dvc
+!/models/.gitignore
+
 metrics/
 plots/
 logs/
