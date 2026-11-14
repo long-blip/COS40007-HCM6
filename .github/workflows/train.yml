@@ -1,10 +1,19 @@
 name: Train ML Model
 
 on:
+  # Run when code or DVC data pointers are pushed to main
   push:
     branches: [ main ]
+
+  # Run checks for pull requests targeting main
   pull_request:
     branches: [ main ]
+
+  # Run daily at 07:17 Vietnam time (00:17 UTC)
+  schedule:
+    - cron: '17 0 * * *'
+
+  # Allow manual runs from the Actions tab
   workflow_dispatch:
 
 jobs:
