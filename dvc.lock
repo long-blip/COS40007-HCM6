@@ -88,8 +88,8 @@ stages:
       size: 111
     - path: plots/threshold.png
       hash: md5
-      md5: f66632eed344608ffc3a176ec0624b0a
-      size: 84537
+      md5: 076dec310eb297978b9106f23f68180f
+      size: 89884
   evaluate:
     cmd: python src/evaluate.py
     deps:
@@ -120,8 +120,8 @@ stages:
       size: 181
     - path: plots/model_results.png
       hash: md5
-      md5: 207bc21f8d1ec21db092a2e94891fe35
-      size: 58675
+      md5: fc6cf9671c25c9a82c7f5aa6aa850b37
+      size: 66519
   ingest:
     cmd: python src/ingest_validate.py --input data/ai4i2020.csv --schema 
       config/ingestion_schema.yaml --output data/validated/ai4i2020.csv --report
