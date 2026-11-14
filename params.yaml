@@ -8,3 +8,7 @@ ks_alpha: 0.05
 psi_threshold: 0.1
 chi2_alpha: 0.05
 perf_tolerance: 0.05
+# Model promotion rules
+promotion:
+  min_recall: 0.80
+  min_f1_improvement: 0.0
