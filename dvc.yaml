@@ -16,12 +16,24 @@ stages:
       - data/validated/ai4i2020.csv
       - metrics/ingestion_report.json
 
+  ingest_batches:
+    cmd: python src/ingest_batches.py
+    deps:
+      - src/ingest_batches.py
+      - src/ingest_validate.py
+      - config/ingestion_schema.yaml
+      - data/new
+    outs:
+      - data/validated/new
+      - metrics/ingestion_batches
+
   preprocess:
     cmd: python src/preprocess.py
     deps:
       - src/preprocess.py
       - src/features.py
       - data/validated/ai4i2020.csv
+      - data/validated/new
       - requirements.txt
     params:
       - seed

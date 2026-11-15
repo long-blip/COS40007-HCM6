@@ -54,14 +54,14 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      # 5. Download the raw dataset from DagsHub
+      # 5. Download the raw dataset and new batches from DagsHub
       - name: Pull data from DagsHub
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           dvc remote modify --local dagshub access_key_id "$DAGSHUB_TOKEN"
           dvc remote modify --local dagshub secret_access_key "$DAGSHUB_TOKEN"
-          dvc pull data/ai4i2020.csv -r dagshub
+          dvc pull data/ai4i2020.csv data/new -r dagshub
 
       # 6. Download the champion from the latest model version
       - name: Pull champion from DagsHub
@@ -84,13 +84,23 @@ jobs:
           echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
           dvc pull models/champion.dvc -r dagshub
 
-      # 7. Recreate the training and test datasets
+      # 7. Validate new batches and recreate the training and test datasets
       # 8. Train the final model
       # 9. Select the threshold using training data only
       # 10. Evaluate on the test set
       # DVC runs these stages in dependency order
       - name: Reproduce DVC pipeline
         run: dvc repro
+
+      # Monitor the production model (champion) on the newest batch
+      - name: Monitor newest batch
+        run: |
+          BATCH=$(ls data/new/*.csv | sort | tail -n 1)
+          echo "Monitoring $BATCH with the current champion"
+          python src/detect_drift.py "$BATCH"
+          python src/monitor.py "$BATCH" \
+            --model models/champion/model.pkl \
+            --threshold models/champion/threshold.json
 
       # 11. Compare the candidate with the current champion
       - name: Check model promotion
@@ -137,6 +147,8 @@ jobs:
           test -f metrics/threshold.json
           test -f metrics/metrics.json
           test -f metrics/promotion.json
+          test -f metrics/drift_report.json
+          test -f metrics/monitoring_report.json
           test -f plots/threshold.png
           test -f plots/model_results.png
 
@@ -214,5 +226,9 @@ jobs:
             metrics/threshold.json
             metrics/metrics.json
             metrics/promotion.json
+            metrics/drift_report.json
+            metrics/monitoring_report.json
+            logs/monitoring_log.csv
+            plots/drift_*.png
             plots/threshold.png
             plots/model_results.png

@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 # and the performance check in monitor.py is fair.
 # batch_001: normal data                                      -> no drift expected
 # batch_002: machines run hotter and tools are worn longer    -> drift expected
+# Batches are written to data/simulated/. To make a batch "arrive", copy it into data/new/ (see data/README.md).
 with open("params.yaml", "r") as f:
     params = yaml.safe_load(f)
 
@@ -18,13 +19,13 @@ _, unseen = train_test_split(df, test_size=params["test_size"],
 
 normal, shifted = train_test_split(unseen, test_size=0.5,
                                    stratify=unseen["Machine failure"], random_state=SEED)
-os.makedirs("data/new", exist_ok=True)
-normal.to_csv("data/new/batch_001.csv", index=False)
+os.makedirs("data/simulated", exist_ok=True)
+normal.to_csv("data/simulated/batch_001.csv", index=False)
 
 shifted = shifted.copy()
 shifted["Air temperature [K]"] += 2
 shifted["Process temperature [K]"] += 2
 shifted["Tool wear [min]"] = (shifted["Tool wear [min]"] * 1.3).round()
-shifted.to_csv("data/new/batch_002.csv", index=False)
+shifted.to_csv("data/simulated/batch_002.csv", index=False)
 
-print(f"Saved data/new/batch_001.csv (normal, {len(normal)} rows) and data/new/batch_002.csv (shifted, {len(shifted)} rows)")
+print(f"Saved data/simulated/batch_001.csv (normal, {len(normal)} rows) and data/simulated/batch_002.csv (shifted, {len(shifted)} rows)")
