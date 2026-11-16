@@ -202,6 +202,7 @@ jobs:
 
           # Upload artifacts before publishing their Git metadata.
           dvc add models/champion
+          dvc push models/champion.dvc -r dagshub
           dvc push -r dagshub
 
           git config user.name "github-actions[bot]"
