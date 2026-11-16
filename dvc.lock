@@ -9,9 +9,9 @@ stages:
       size: 522048
     - path: data/validated/new
       hash: md5
-      md5: 794418ca276fb2506814fb4fd79b8017.dir
-      size: 52552
-      nfiles: 1
+      md5: c355ef2f122380d0cf747ccbf6eabb5e.dir
+      size: 107194
+      nfiles: 2
     - path: requirements.txt
       hash: md5
       md5: 7f013c856fbe68879352870a3244e3b2
@@ -31,19 +31,19 @@ stages:
     outs:
     - path: data/processed/test.csv
       hash: md5
-      md5: 9fc92328e0d2677bc566fd6a68c98c1b
-      size: 153822
+      md5: 6b3a0eb63539bc50dd3460b8913e9406
+      size: 173638
     - path: data/processed/train.csv
       hash: md5
-      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
-      size: 615947
+      md5: afe623395bd5253d7059f266ea9e4f68
+      size: 694999
   train:
     cmd: python src/train.py
     deps:
     - path: data/processed/train.csv
       hash: md5
-      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
-      size: 615947
+      md5: afe623395bd5253d7059f266ea9e4f68
+      size: 694999
     - path: requirements.txt
       hash: md5
       md5: 7f013c856fbe68879352870a3244e3b2
@@ -61,19 +61,19 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 708f81e0dd4ed84895f9a52a97ee0704
-      size: 8668761
+      md5: e35063e060c58867655e46973b8bf3a5
+      size: 10138841
   select_threshold:
     cmd: python src/select_threshold.py
     deps:
     - path: data/processed/train.csv
       hash: md5
-      md5: e2dc18cb351ee2c8d68fe5fe7a9a46d2
-      size: 615947
+      md5: afe623395bd5253d7059f266ea9e4f68
+      size: 694999
     - path: models/model.pkl
       hash: md5
-      md5: 708f81e0dd4ed84895f9a52a97ee0704
-      size: 8668761
+      md5: e35063e060c58867655e46973b8bf3a5
+      size: 10138841
     - path: requirements.txt
       hash: md5
       md5: 7f013c856fbe68879352870a3244e3b2
@@ -89,27 +89,27 @@ stages:
     outs:
     - path: metrics/threshold.json
       hash: md5
-      md5: 6c3c04ee6625511241a8f5ba76551ea5
-      size: 117
+      md5: 00c5ac204ab9e10895c8f71759981597
+      size: 120
     - path: plots/threshold.png
       hash: md5
-      md5: 86c16de8aa734d4f5a2df606b689923f
-      size: 84294
+      md5: 00b7ace70f4757108fb730caaabe32ef
+      size: 87556
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/processed/test.csv
       hash: md5
-      md5: 9fc92328e0d2677bc566fd6a68c98c1b
-      size: 153822
+      md5: 6b3a0eb63539bc50dd3460b8913e9406
+      size: 173638
     - path: metrics/threshold.json
       hash: md5
-      md5: 6c3c04ee6625511241a8f5ba76551ea5
-      size: 117
+      md5: 00c5ac204ab9e10895c8f71759981597
+      size: 120
     - path: models/model.pkl
       hash: md5
-      md5: 708f81e0dd4ed84895f9a52a97ee0704
-      size: 8668761
+      md5: e35063e060c58867655e46973b8bf3a5
+      size: 10138841
     - path: requirements.txt
       hash: md5
       md5: 7f013c856fbe68879352870a3244e3b2
@@ -121,12 +121,12 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 3434ba2ffdc8b8c0912170f3374094be
-      size: 188
+      md5: 6f719316b99f2c0734f61653909f4c54
+      size: 204
     - path: plots/model_results.png
       hash: md5
-      md5: 6ef67c710ae142cc353a31e04a6d1495
-      size: 58464
+      md5: 153e7c16f8684a2ac22dc5336727a194
+      size: 59630
   ingest:
     cmd: python src/ingest_validate.py --input data/ai4i2020.csv --schema 
       config/ingestion_schema.yaml --output data/validated/ai4i2020.csv --report
@@ -166,9 +166,9 @@ stages:
       size: 1149
     - path: data/new
       hash: md5
-      md5: 794418ca276fb2506814fb4fd79b8017.dir
-      size: 52552
-      nfiles: 1
+      md5: c355ef2f122380d0cf747ccbf6eabb5e.dir
+      size: 107194
+      nfiles: 2
     - path: src/ingest_batches.py
       hash: md5
       md5: 877b6f91320dd0ccb696926e917015db
@@ -180,11 +180,11 @@ stages:
     outs:
     - path: data/validated/new
       hash: md5
-      md5: 794418ca276fb2506814fb4fd79b8017.dir
-      size: 52552
-      nfiles: 1
+      md5: c355ef2f122380d0cf747ccbf6eabb5e.dir
+      size: 107194
+      nfiles: 2
     - path: metrics/ingestion_batches
       hash: md5
-      md5: 69dcdfc61355e03157d4b8825b860060.dir
-      size: 659
-      nfiles: 1
+      md5: 1d2d14c22323f98d0e91ec05f5e28171.dir
+      size: 1318
+      nfiles: 2
