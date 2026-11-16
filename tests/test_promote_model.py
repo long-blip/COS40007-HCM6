@@ -182,8 +182,14 @@ class PromotionTests(unittest.TestCase):
         self.temp.cleanup()
 
     def write_rules(self):
+        params = {
+            "min_recall": self.rules["min_recall"],
+            "promotion": {
+                "min_f1_improvement": self.rules["min_f1_improvement"],
+            },
+        }
         Path("params.yaml").write_text(
-            yaml.safe_dump({"promotion": self.rules}),
+            yaml.safe_dump(params),
             encoding="utf-8",
         )
 

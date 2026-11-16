@@ -36,7 +36,7 @@ precision, recall, thresholds = precision_recall_curve(y, y_prob)
 precision, recall = precision[:-1], recall[:-1]   # last point has no threshold
 f1 = 2 * precision * recall / (precision + recall + 1e-12)
 
-# 6. Rule: highest F1 among thresholds that keep recall. >= MIN_RECALL
+# 6. Rule: highest F1 among thresholds that keep recall >= MIN_RECALL
 f1_allowed = np.where(recall >= MIN_RECALL, f1, -1)
 best = int(np.argmax(f1_allowed))
 

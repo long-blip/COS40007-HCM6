@@ -48,7 +48,9 @@ def main():
 
     # Recheck the decision against the current files and rules.
     with open("params.yaml") as f:
-        rules = yaml.safe_load(f)["promotion"]
+        params = yaml.safe_load(f)
+
+    rules = params["promotion"]
 
     data = pd.read_csv("data/processed/test.csv")
     X = data.drop(columns=["Machine failure"])
@@ -64,7 +66,7 @@ def main():
     )
 
     approved = (
-        candidate["recall"] >= float(rules["min_recall"])
+        candidate["recall"] >= float(params["min_recall"])
         and candidate["f1"] - champion["f1"]
         > float(rules["min_f1_improvement"])
     )
