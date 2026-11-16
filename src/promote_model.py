@@ -43,13 +43,14 @@ def main():
     args = parser.parse_args()
 
     with open("params.yaml") as f:
-        rules = yaml.safe_load(f)["promotion"]
+        params = yaml.safe_load(f)
 
-    min_recall = float(rules["min_recall"])
+    rules = params["promotion"]
+    min_recall = float(params["min_recall"])
     min_improvement = float(rules["min_f1_improvement"])
 
     if not np.isfinite(min_recall) or not 0 <= min_recall <= 1:
-        raise ValueError("promotion.min_recall must be between 0 and 1.")
+        raise ValueError("min_recall must be between 0 and 1.")
     if not np.isfinite(min_improvement) or not 0 <= min_improvement <= 1:
         raise ValueError("promotion.min_f1_improvement must be between 0 and 1.")
 
